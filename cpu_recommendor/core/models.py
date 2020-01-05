@@ -17,3 +17,8 @@ class CPU(models.Model):
     multithreading = models.BooleanField(default=False)
     tdp = models.IntegerField(default=0)
     integrated_graphics = models.CharField(max_length=100, default='', null=True)
+
+    gaming_score = models.FloatField(default=0)
+    productivity_score = models.FloatField(default=0)
+    blend_score = models.FloatField(default=0)
+    value_score = models.FloatField(default=0)

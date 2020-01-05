@@ -33,7 +33,7 @@ def merge_data(scraped_data, dump_data=False):
         if 'Threadripper' in cpu_name:
             cpu_name = ' '.join([cpu.brand, 'Ryzen', cpu.model])
             
-        try:
+        try: #May not work, because we're merging data from pcpartpicker to data found on pcmark
             scraped_cpu = scraped_data[cpu_name]
             scraped_price = fix_scraped_price(scraped_cpu)
             partpick_price = float(cpu.price.amount)

@@ -24,7 +24,8 @@ def get_cpu_info(url, data_dict, parser):
 
     try:
         name = soup.find(class_='cpuname').get_text().split('@')[0].strip()
-
+        
+        #HTML containers found on the passmark website
         left_desc = soup.find(class_='left-desc-cpu').get_text()
         right_desc = soup.find(class_='right-desc').get_text()
         desc_foot = soup.find(class_='desc-foot').get_text()
