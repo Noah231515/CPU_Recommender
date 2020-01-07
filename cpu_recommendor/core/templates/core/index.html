@@ -1,0 +1,29 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'core/index.css' %}">
+
+<h1>CPU Recommendation System</h1>
+<hr> 
+<h2>Getting Started</h2>
+<body>
+    Thank you for checking out this CPU Recommendation Tool. Below you will be presented with some parameters to set.
+    
+    <div id='form-items'>
+        
+        <form id='cpu-form' action="recommendation/" method="post">
+            {% csrf_token %}        
+            <div id='budjet-field'>
+                CPU budget
+                <br>
+                {{ form.budget }}
+            </div>
+            <div>
+                {{ form.task}}
+            </div>
+
+            <input type="submit" value="Submit">
+        </form>
+
+    </div>
+
+</body>

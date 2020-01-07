@@ -5,7 +5,7 @@ from os.path import join
 from sys import exit
 from pcpartpicker import API
 
-#logging.basicConfig(filename=join(constants.passmark_log_directory, 'data_merger', 'data_merger.log'), level=logging.DEBUG)
+logging.basicConfig(filename=join(constants.passmark_log_directory, 'data_merger', 'data_merger.log'), level=logging.DEBUG)
 
 
 
@@ -25,7 +25,7 @@ def merge_data(scraped_data, dump_data=False):
     logging.info('Merging Start')
     merged_data = {}    
     api = API()
-    api_cpu_data = api.retrieve('cpu')['cpu']
+    api_cpu_data = api.retrieve('cpu', force_refresh=True)['cpu']
 
     for i, cpu in enumerate(api_cpu_data):
         cpu_name = ' '.join([cpu.brand, cpu.model])

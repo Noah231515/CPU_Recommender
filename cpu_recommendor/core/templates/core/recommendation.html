@@ -1,0 +1,78 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'core/recommendation.css' %}">
+
+<h1 id='title'>CPU Recommendation System</h1>
+<hr>
+<body>
+<h2 id='results'>Results</h2>
+    Thank you for trying out this recommendation system!
+    Based on your input, we have decided on 3 recommendations!
+    <br>
+    Your requirements:
+    <br>
+        {% for key, value in inputs.items %}
+            {{key.capitalize}}: {{value}}
+            <br>
+        {% endfor %}
+    <br>
+
+    {% if not best_perf and not best_power and not best_value %}
+        At this price point, there are no CPUs that we recommend.
+        <br>
+        Instead, we recommend you to save more money!
+    {% endif %}
+    <div id='results-container'>
+        <div id='performance-cpus'>
+            <br>
+            {% if best_perf.0 %}
+                Raw Performance:
+                <br>
+                Gold: {{ best_perf.0.name }}, {{task}} Score: {{performance_scores.0}}
+            {% endif %}
+            <br>
+            {% if best_perf.1 %}
+                Silver: {{ best_perf.1.name}}, {{task}} Score: {{performance_scores.1}}
+            {% endif %}
+            <br>
+            {% if best_perf.2 %}
+                Bronze: {{ best_perf.2.name }}, {{task}} Score: {{performance_scores.2}}
+            {% endif %}
+        </div>
+        <br>
+        <div id='value-cpus'>
+            <br>
+            {% if best_value.0 %}
+                Best Value:
+                <br>
+                Gold: {{ best_value.0.name }}
+            {% endif %}
+            <br>
+            {% if best_value.1 %}
+                Silver: {{ best_value.1.name }} 
+            {% endif %}
+            <br>
+            {% if best_value.2 %}
+                Bronze: {{ best_value.2.name}} 
+            {% endif %}
+        </div>
+        <br>
+        <div id='power-cpus'>
+            <br>
+            {% if best_power.0 %}
+                Most Power Efficient:
+                <br>
+                Gold: {{ best_power.0.name }}
+            {% endif %}
+            <br>
+            {% if best_power.1 %}
+                Silver: {{ best_power.1.name}}
+            {% endif %}
+            <br>
+            {% if best_power.2 %}
+                Bronze: {{ best_power.2.name }}
+            {% endif %}
+             
+        </div>
+    </div>
+
+</body>

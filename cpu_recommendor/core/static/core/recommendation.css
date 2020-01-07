@@ -1,0 +1,15 @@
+body {
+    text-align: center;
+}
+#title {
+    text-align: center;   
+}
+
+#results {
+    text-align: center;
+}
+#results-container {
+    display: flex;
+    justify-content: space-between;
+
+}
