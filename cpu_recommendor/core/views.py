@@ -37,7 +37,7 @@ def find_best_three_adjusted_part(cpu_list, task, adjustor, modifiers=None): #Al
     adjusted_list = [(cpu, get_cpu_param(cpu, task) * get_cpu_param(cpu, adjustor, modifiers) ) for cpu in cpu_list ]
     top_three = sorted(adjusted_list, key = lambda tup: tup[1], reverse=True)[:3]
     return top_three
-    
+
 def Recommendation_Page(request): #Remember, this page depends on the task that the user picks
 
     if request.method == 'POST':
@@ -45,9 +45,9 @@ def Recommendation_Page(request): #Remember, this page depends on the task that 
 
         if form.is_valid(): #For now we assume for now that there exists valid CPUs at this price
             task_dict = { #could probably pull from form
-                'gaming_score': 'Gaming',
-                'productivity_score': 'Productivity',
-                'blend_score': 'Blend'
+                'gaming_score': 'gaming',
+                'productivity_score': 'productivity',
+                'blend_score': 'all around performance'
             }    
             inputs = form.cleaned_data.copy()
             inputs['task'] = task_dict[ form.cleaned_data['task'] ] #clean this dict a bit with function
@@ -62,6 +62,9 @@ def Recommendation_Page(request): #Remember, this page depends on the task that 
             
             best_power = find_best_three_adjusted_part(best_for_task, task, 'tdp', modifiers={'operation': '/', 'value': 10})
             power_parts = [part[0] for part in best_power]
+
+            #part_list = list(performance) + list(value_parts) + list(power_parts)
+            
             return render(request, 'core/recommendation.html', {
                 'best_perf': performance,
                 'performance_scores': [get_cpu_param(cpu, task) for cpu in performance],

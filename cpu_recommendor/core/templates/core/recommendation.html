@@ -1,78 +1,124 @@
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'core/recommendation.css' %}">
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'core/stylesheets/recommendation.css' %}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  ​<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
 
-<h1 id='title'>CPU Recommendation System</h1>
-<hr>
+<script type='text/javascript'>
+    function setBackground(id, brand)
+    {
+        let image_dict = {
+            'AMD': "url('/static/core/images/amd-logo-alt.jpg')",
+            'Intel': "url('/static/core/images/intel-logo-alt-1.jpg')"
+        };
+        
+        document.getElementById(id).style.backgroundImage = image_dict[brand];
+        document.getElementById(id).style.backgroundRepeat = "no-repeat";
+        //document.getElementById(id).style.height = 100'%';
+        //alert(brand);
+    }
+</script>
+
+</head>
 <body>
-<h2 id='results'>Results</h2>
-    Thank you for trying out this recommendation system!
-    Based on your input, we have decided on 3 recommendations!
-    <br>
-    Your requirements:
-    <br>
-        {% for key, value in inputs.items %}
-            {{key.capitalize}}: {{value}}
-            <br>
-        {% endfor %}
-    <br>
 
-    {% if not best_perf and not best_power and not best_value %}
-        At this price point, there are no CPUs that we recommend.
-        <br>
-        Instead, we recommend you to save more money!
-    {% endif %}
-    <div id='results-container'>
-        <div id='performance-cpus'>
-            <br>
-            {% if best_perf.0 %}
-                Raw Performance:
-                <br>
-                Gold: {{ best_perf.0.name }}, {{task}} Score: {{performance_scores.0}}
-            {% endif %}
-            <br>
-            {% if best_perf.1 %}
-                Silver: {{ best_perf.1.name}}, {{task}} Score: {{performance_scores.1}}
-            {% endif %}
-            <br>
-            {% if best_perf.2 %}
-                Bronze: {{ best_perf.2.name }}, {{task}} Score: {{performance_scores.2}}
-            {% endif %}
-        </div>
-        <br>
-        <div id='value-cpus'>
-            <br>
-            {% if best_value.0 %}
-                Best Value:
-                <br>
-                Gold: {{ best_value.0.name }}
-            {% endif %}
-            <br>
-            {% if best_value.1 %}
-                Silver: {{ best_value.1.name }} 
-            {% endif %}
-            <br>
-            {% if best_value.2 %}
-                Bronze: {{ best_value.2.name}} 
-            {% endif %}
-        </div>
-        <br>
-        <div id='power-cpus'>
-            <br>
-            {% if best_power.0 %}
-                Most Power Efficient:
-                <br>
-                Gold: {{ best_power.0.name }}
-            {% endif %}
-            <br>
-            {% if best_power.1 %}
-                Silver: {{ best_power.1.name}}
-            {% endif %}
-            <br>
-            {% if best_power.2 %}
-                Bronze: {{ best_power.2.name }}
-            {% endif %}
-             
-        </div>
+<h1 id="header">CPU Recommendation System</h1> 
+<hr>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'bestPerf')">Top Performance</button>
+  <button class="tablinks" onclick="openTab(event, 'bestValue')">Best Value</button>
+  <button class="tablinks" onclick="openTab(event, 'bestPower')">Most Power Efficient</button>
+</div>
+
+
+<div id="bestPerf" class="tabcontent">
+  <p>Below are the CPUs that for ${{inputs.budget}} offer the best raw performance for {{inputs.task}}.</p>
+
+    <div class="recommendations">
+        <table class="table">
+          
+            <thead>
+              <tr>
+                <th>Part Name</th>
+                <th>Part Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for part in best_perf %}
+              <tr>
+                <td>{{part.name}}</td>
+                <td>{{part.price}}</td>
+              </tr>
+              {% endfor %}  
+            </tbody>
+          </table>
     </div>
+</div>
 
+<div id="bestValue" class="tabcontent">
+  <p>Best Value Parts</p> 
+  
+  <div class="recommendations">
+      <table class="table">
+          <thead>
+            <tr>
+              <th>Part Name</th>
+              <th>Part Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for part in best_value %}
+            <tr>
+              <td>{{part.name}}</td>
+              <td>{{part.price}}</td>
+            </tr>
+            {% endfor %}  
+          </tbody>
+        </table>
+  </div>
+</div>
+
+<div id="bestPower" class="tabcontent">
+  <p>Best power Parts.</p>
+
+  <div class="recommendations">
+      <table class="table">
+          <thead>
+            <tr>
+              <th>Part Name</th>
+              <th>Part Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for part in best_power %}
+            <tr>
+              <td>{{part.name}}</td>
+              <td>{{part.price}}</td>
+            </tr>
+            {% endfor %}  
+          </tbody>
+        </table>
+  </div>
+</div>
+
+<script>
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+   
 </body>
+</html>
