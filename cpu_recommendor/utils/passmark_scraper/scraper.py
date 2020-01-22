@@ -21,10 +21,12 @@ def get_cpu_info(url, data_dict, parser):
     full_url = constants.passmark_base_url + url
     page = requests.get( full_url )
     soup = BeautifulSoup(page.content, parser)
-
     try:
         name = soup.find(class_='cpuname').get_text().split('@')[0].strip()
-        
+        name_split = name.split()
+        brand = name_split[0]
+        model = ' '.join(name_split[1:])
+
         #HTML containers found on the passmark website
         left_desc = soup.find(class_='left-desc-cpu').get_text()
         right_desc = soup.find(class_='right-desc').get_text()
@@ -36,16 +38,32 @@ def get_cpu_info(url, data_dict, parser):
             return
     
         else:    
-            #print(f'Class: {cpu_class}, name: {name}')
-            socket = strip_text(left_desc, '(Socket:\s+)(\S+)').group(2)
+            socket = strip_text(left_desc, '(Socket:\s*)(\S+)').group(2)
+            base_clock = strip_text(left_desc, '(Clockspeed:\s*)(\d+\.\d+)').group(2)
+            try:
+                boost_clock = strip_text(left_desc, '(Turbo Speed:\s*)(\d+\.\d+)').group(2)
+            except AttributeError:
+                boost_clock = None
+            
+            cores_match = strip_text(left_desc, '(No of Cores:\s*)(\d+)\s*(\(2 logical cores per physical\))?')
+            core_count = cores_match.group(2)
+            multithreading = True if cores_match.group(3) else False
+            tdp = strip_text(left_desc, '(Typical TDP:\s*)(\d+)').group(2)
             multithread_score = strip_text(right_desc, '(Average CPU Mark)(\n \d+)').group(2).strip()
             singlethread_score = strip_text(right_desc, '(Single Thread Rating:\s+)(\d+)').group(2).strip()
-            samples = strip_text(right_desc, '(Samples:\s+)(\d+)').group(2) #used for weighting
-            release_date = strip_text(desc_foot, '(CPU First Seen on Charts:\s+)(Q\d+\s\d+)').group(2) 
-            price = strip_text(desc_foot, '\$(\d+[,.])*(\d+)').group()
+            samples = strip_text(right_desc, '(Samples:\s*)(\d+)').group(2) #used for weighting
+            release_date = strip_text(desc_foot, '(CPU First Seen on Charts:\s*)(Q\d+\s\d+)').group(2) 
+            price = strip_text(desc_foot, '\$((\d+[,.])*(\d+))').group(1).replace(',', '')
 
             data_dict[name] = {
+                'brand': brand,
+                'model': model,
                 'socket': socket,
+                'base_clock': base_clock,
+                'boost_clock': boost_clock,
+                'cores': core_count,
+                'multithreading': multithreading,
+                'tdp': tdp,
                 'multithreaded_score': multithread_score,
                 'singlethreaded_score': singlethread_score,
                 'samples': samples,
@@ -54,7 +72,7 @@ def get_cpu_info(url, data_dict, parser):
                 }
             
             return data_dict
-    except:
+    except AttributeError:
         logging.debug(f'The CPU: {name} has missing data and will be skipped!')
             
 def scrape_page(url, parser='html.parser'):
@@ -63,7 +81,7 @@ def scrape_page(url, parser='html.parser'):
     pool = Pool(cpu_count())
     data_dict = manager.dict() #Our dictionary can now be shared between processes
 
-    page = requests.get( url )
+    page = requests.get(url)
     soup = BeautifulSoup(page.content, parser)
     
     list_container = soup.find(class_='chartlist')
@@ -72,7 +90,7 @@ def scrape_page(url, parser='html.parser'):
     cpu_urls = [cpu.get('href') for cpu in cpu_info]
 
     for url in cpu_urls: #Each task is added to the pool to be completed in parallel
-        pool.apply_async(get_cpu_info, args=(url, data_dict, parser) )
+        pool.apply_async(get_cpu_info, args=(url, data_dict, parser))
 
     pool.close()
     cnt = 0
@@ -80,8 +98,9 @@ def scrape_page(url, parser='html.parser'):
         sleep(constants.time_increment)
         cnt += constants.time_increment
     
+    if cnt >= constants.timeout_threshold:
+        logging.warning('Scraper timed out!!')
     logging.info('Scraping Complete!')
     logging.info(f'Traversing {len(cpu_urls)} pages and capturing {len(data_dict)} entries took {cnt} seconds!')
 
     return data_dict
-

@@ -23,16 +23,8 @@ def build_dataframe(cpu,task):
         float(cpu.boost_clock)*10,
         float(cpu.multithreading) * 10
     ]
-    cpu_df['wt'] = weight_dict[task]
-
-    #scaled = normalize(cpu_df)
-    scaled = minmax_scale(cpu_df, feature_range=(0,1))
-
-    scaled_df = DataFrame(scaled)
-    scaled_df.columns = ['features', 'wt']   
-
-    print(f'Scaled DF for {cpu.name}: {scaled_df}')
-    print(f'Normal DF for {cpu.name}: {cpu_df}')
+    cpu_df['wt'] = weight_dict[task] 
+    logger.debug(f'Normal DF for {cpu.name}: {cpu_df}')
     return cpu_df
 
 def compute_R_score(cpu, task='p'):
@@ -66,22 +58,20 @@ class CoreConfig(AppConfig):
         from .models import CPU 
 
         number_of_cpus = len(CPU.objects.all())
-        
         if not number_of_cpus:
             logger.info('Empty database. Populating beginning...')
             high_end_cpus = scrape_page(constants.high_end_cpus)
             common_cpus = scrape_page(constants.common_cpus)
-
             scraped_data = {**high_end_cpus, **common_cpus}
-            merged_data = merge_data(scraped_data)
             
-            for name, data in merged_data.items():
+            for name, data in scraped_data.items():
                 data['name'] = name
                 cpu = CPU(**data)
                 r_scores = compute_R_score(cpu,task='a')
 
-                cpu.value_score = float(cpu.multithreaded_score) / cpu.price 
+                cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
                 cpu.productivity_score = r_scores['p']
                 cpu.gaming_score = r_scores['g']
                 cpu.blend_score = r_scores['b']
                 cpu.save()
+            
