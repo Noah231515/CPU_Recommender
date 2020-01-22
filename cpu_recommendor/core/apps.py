@@ -54,9 +54,8 @@ class CoreConfig(AppConfig):
     def ready(self):
         from utils.passmark_scraper.scraper import scrape_page
         from utils.passmark_scraper import constants
-        from utils.passmark_scraper.data_merger import merge_data
         from .models import CPU 
-
+        
         number_of_cpus = len(CPU.objects.all())
         if not number_of_cpus:
             logger.info('Empty database. Populating beginning...')
@@ -68,7 +67,7 @@ class CoreConfig(AppConfig):
                 data['name'] = name
                 cpu = CPU(**data)
                 r_scores = compute_R_score(cpu,task='a')
-
+            
                 cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
                 cpu.productivity_score = r_scores['p']
                 cpu.gaming_score = r_scores['g']

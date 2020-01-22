@@ -16,6 +16,13 @@ def strip_text(container, regex):
     text = STRIP_REGEX.search(container)
 
     return text
+def get_part_img(name, parser): #Takes the first image from google images
+
+    params = {'q':name}
+    page = requests.get(constants.google_images, params)
+    soup = BeautifulSoup(page.content, parser)
+    img_tables = soup.find_all('table')[4]
+    return img_tables.find('a').find('img')['src']
 
 def get_cpu_info(url, data_dict, parser):
     full_url = constants.passmark_base_url + url
@@ -30,13 +37,11 @@ def get_cpu_info(url, data_dict, parser):
         #HTML containers found on the passmark website
         left_desc = soup.find(class_='left-desc-cpu').get_text()
         right_desc = soup.find(class_='right-desc').get_text()
-        desc_foot = soup.find(class_='desc-foot').get_text()
-        
+        desc_foot = soup.find(class_='desc-foot').get_text()    
         cpu_class = strip_text(left_desc, '(Class:\s+)(\S+)').group(2)
 
         if cpu_class and cpu_class.strip() != 'Desktop':
             return
-    
         else:    
             socket = strip_text(left_desc, '(Socket:\s*)(\S+)').group(2)
             base_clock = strip_text(left_desc, '(Clockspeed:\s*)(\d+\.\d+)').group(2)
@@ -54,6 +59,7 @@ def get_cpu_info(url, data_dict, parser):
             samples = strip_text(right_desc, '(Samples:\s*)(\d+)').group(2) #used for weighting
             release_date = strip_text(desc_foot, '(CPU First Seen on Charts:\s*)(Q\d+\s\d+)').group(2) 
             price = strip_text(desc_foot, '\$((\d+[,.])*(\d+))').group(1).replace(',', '')
+            image_url = get_part_img(name, parser)
 
             data_dict[name] = {
                 'brand': brand,
@@ -68,16 +74,16 @@ def get_cpu_info(url, data_dict, parser):
                 'singlethreaded_score': singlethread_score,
                 'samples': samples,
                 'release_date': release_date,
-                'price': price
+                'price': price,
+                'image_url': image_url
                 }
-            
             return data_dict
+            
     except AttributeError:
         logging.debug(f'The CPU: {name} has missing data and will be skipped!')
             
 def scrape_page(url, parser='html.parser'):
     manager = Manager() #Manager manages shared memory objects
-    
     pool = Pool(cpu_count())
     data_dict = manager.dict() #Our dictionary can now be shared between processes
 

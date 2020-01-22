@@ -13,7 +13,7 @@ low_end_cpus = 'https://www.cpubenchmark.net/low_end_cpus.html'
 common_cpus = 'https://www.cpubenchmark.net/common_cpus.html'
 passmark_filename = 'cpu_data.json'
 passmark_log_directory = join(base_directory, 'logs', 'passmark_scraper')
-
+google_images = 'https://www.google.com/search?safe=off&hl=en&tbm=isch'
 
 timeout_threshold = 60
 time_increment = 2
