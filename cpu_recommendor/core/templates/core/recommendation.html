@@ -42,6 +42,7 @@
           
             <thead>
               <tr>
+                <th>Image</th>
                 <th>Part Name</th>
                 <th>Part Price</th>
               </tr>
@@ -49,6 +50,7 @@
             <tbody>
               {% for part in best_perf %}
               <tr>
+                <td><img src={{part.image_url}}></td>
                 <td>{{part.name}}</td>
                 <td>${{part.price}}</td>
               </tr>
@@ -65,6 +67,7 @@
       <table class="table">
           <thead>
             <tr>
+              <th>Image</th>
               <th>Part Name</th>
               <th>Part Price</th>
             </tr>
@@ -72,6 +75,7 @@
           <tbody>
             {% for part in best_value %}
             <tr>
+              <td><img src={{part.image_url}}></td>
               <td>{{part.name}}</td>
               <td>${{part.price}}</td>
             </tr>
@@ -88,13 +92,16 @@
       <table class="table">
           <thead>
             <tr>
+              <th>Image</th>
               <th>Part Name</th>
               <th>Part Price</th>
+              
             </tr>
           </thead>
           <tbody>
             {% for part in best_power %}
             <tr>
+              <td><img src={{part.image_url}}></td>
               <td>{{part.name}}</td>
               <td>${{part.price}}</td>
             </tr>
