@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from sys import argv
 import logging
 from logging.config import dictConfig
 from os.path import join
@@ -18,7 +19,7 @@ from os.path import join
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-print(BASE_DIR)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -29,6 +30,8 @@ SECRET_KEY = 'psn!gt)y^5u7tcfuz6e^#ut-j%9ze2%m9xo1_o*9j57#(lqkwr'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+RUN_ARGS = argv
+
 
 
 # Application definition

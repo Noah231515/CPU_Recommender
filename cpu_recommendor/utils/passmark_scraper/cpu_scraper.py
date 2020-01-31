@@ -1,6 +1,5 @@
 import requests
 import logging
-import re
 import json
 from bs4 import BeautifulSoup
 from configobj import ConfigObj
@@ -8,21 +7,9 @@ from multiprocessing import Pool, Manager, cpu_count
 from time import sleep
 from os.path import join 
 from . import constants
+from . import scraper_utils
 
 logging.basicConfig(filename=join(constants.passmark_log_directory, 'scraper', 'scraper.log'), level=logging.DEBUG)
-
-def strip_text(container, regex):
-    STRIP_REGEX = re.compile(regex)
-    text = STRIP_REGEX.search(container)
-
-    return text
-def get_part_img(name, parser): #Takes the first image from google images
-
-    params = {'q':name}
-    page = requests.get(constants.google_images, params)
-    soup = BeautifulSoup(page.content, parser)
-    img_tables = soup.find_all('table')[4]
-    return img_tables.find('a').find('img')['src']
 
 def get_cpu_info(url, data_dict, parser):
     full_url = constants.passmark_base_url + url
@@ -35,31 +22,29 @@ def get_cpu_info(url, data_dict, parser):
         model = ' '.join(name_split[1:])
 
         #HTML containers found on the passmark website
-        left_desc = soup.find(class_='left-desc-cpu').get_text()
-        right_desc = soup.find(class_='right-desc').get_text()
-        desc_foot = soup.find(class_='desc-foot').get_text()    
-        cpu_class = strip_text(left_desc, '(Class:\s+)(\S+)').group(2)
+        left_desc, right_desc, desc_foot = scraper_utils.get_page_containers(soup)  
+        cpu_class = scraper_utils.strip_text(left_desc, '(Class:\s+)(\S+)').group(2)
 
         if cpu_class and cpu_class.strip() != 'Desktop':
             return
         else:    
-            socket = strip_text(left_desc, '(Socket:\s*)(\S+)').group(2)
-            base_clock = strip_text(left_desc, '(Clockspeed:\s*)(\d+\.\d+)').group(2)
+            socket = scraper_utils.strip_text(left_desc, '(Socket:\s*)(\S+)').group(2)
+            base_clock = scraper_utils.strip_text(left_desc, '(Clockspeed:\s*)(\d+\.\d+)').group(2)
             try:
-                boost_clock = strip_text(left_desc, '(Turbo Speed:\s*)(\d+\.\d+)').group(2)
+                boost_clock = scraper_utils.strip_text(left_desc, '(Turbo Speed:\s*)(\d+\.\d+)').group(2)
             except AttributeError:
                 boost_clock = None
             
-            cores_match = strip_text(left_desc, '(No of Cores:\s*)(\d+)\s*(\(2 logical cores per physical\))?')
+            cores_match = scraper_utils.strip_text(left_desc, '(No of Cores:\s*)(\d+)\s*(\(2 logical cores per physical\))?')
             core_count = cores_match.group(2)
             multithreading = True if cores_match.group(3) else False
-            tdp = strip_text(left_desc, '(Typical TDP:\s*)(\d+)').group(2)
-            multithread_score = strip_text(right_desc, '(Average CPU Mark)(\n \d+)').group(2).strip()
-            singlethread_score = strip_text(right_desc, '(Single Thread Rating:\s+)(\d+)').group(2).strip()
-            samples = strip_text(right_desc, '(Samples:\s*)(\d+)').group(2) #used for weighting
-            release_date = strip_text(desc_foot, '(CPU First Seen on Charts:\s*)(Q\d+\s\d+)').group(2) 
-            price = strip_text(desc_foot, '\$((\d+[,.])*(\d+))').group(1).replace(',', '')
-            image_url = get_part_img(name, parser)
+            tdp = scraper_utils.strip_text(left_desc, '(Typical TDP:\s*)(\d+)').group(2)
+            multithread_score = scraper_utils.strip_text(right_desc, '(Average CPU Mark)(\n \d+)').group(2).strip()
+            singlethread_score = scraper_utils.strip_text(right_desc, '(Single Thread Rating:\s+)(\d+)').group(2).strip()
+            samples = scraper_utils.strip_text(right_desc, '(Samples:\s*)(\d+)').group(2) #used for weighting
+            release_date = scraper_utils.strip_text(desc_foot, '(CPU First Seen on Charts:\s*)(Q\d+\s\d+)').group(2) 
+            price = scraper_utils.strip_text(desc_foot, '\$((\d+[,.])*(\d+))').group(1).replace(',', '')
+            image_url = scraper_utils.get_part_img(name, parser)
 
             data_dict[name] = {
                 'brand': brand,

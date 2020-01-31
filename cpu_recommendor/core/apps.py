@@ -3,6 +3,8 @@ import logging
 from pandas import DataFrame
 from numpy import average
 from sklearn.preprocessing import MinMaxScaler, normalize, minmax_scale
+from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,25 +54,28 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-        from utils.passmark_scraper.scraper import scrape_page
-        from utils.passmark_scraper import constants
-        from .models import CPU 
+
+        if 'runserver' in settings.RUN_ARGS:
+            from utils.passmark_scraper.cpu_scraper import scrape_page
+            from utils.passmark_scraper import constants
+            from .models import CPU 
+            
+            number_of_cpus = len(CPU.objects.all())
+            if not number_of_cpus:
+                logger.info('Empty database. Populating beginning...')
+                high_end_cpus = scrape_page(constants.high_end_cpus)
+                common_cpus = scrape_page(constants.common_cpus)
+                scraped_data = {**high_end_cpus, **common_cpus}
+                
+                for name, data in scraped_data.items():
+                    data['name'] = name
+                    cpu = CPU(**data)
+                    r_scores = compute_R_score(cpu,task='a')
+                
+                    cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
+                    cpu.productivity_score = r_scores['p']
+                    cpu.gaming_score = r_scores['g']
+                    cpu.blend_score = r_scores['b']
+                    cpu.save()
         
-        number_of_cpus = len(CPU.objects.all())
-        if not number_of_cpus:
-            logger.info('Empty database. Populating beginning...')
-            high_end_cpus = scrape_page(constants.high_end_cpus)
-            common_cpus = scrape_page(constants.common_cpus)
-            scraped_data = {**high_end_cpus, **common_cpus}
-            
-            for name, data in scraped_data.items():
-                data['name'] = name
-                cpu = CPU(**data)
-                r_scores = compute_R_score(cpu,task='a')
-            
-                cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
-                cpu.productivity_score = r_scores['p']
-                cpu.gaming_score = r_scores['g']
-                cpu.blend_score = r_scores['b']
-                cpu.save()
-            
+                
