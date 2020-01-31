@@ -55,7 +55,8 @@ class CoreConfig(AppConfig):
 
     def ready(self):
 
-        if 'runserver' in settings.RUN_ARGS:
+        #if 'runserver' not in settings.RUN_ARGS: #doesn't run on purpose
+        if 4 > 5:
             from utils.passmark_scraper.cpu_scraper import scrape_page
             from utils.passmark_scraper import constants
             from .models import CPU 

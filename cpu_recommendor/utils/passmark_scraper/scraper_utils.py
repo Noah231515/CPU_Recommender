@@ -1,10 +1,7 @@
-import re 
-import requests
-from bs4 import BeautifulSoup
 from . import constants
-
-
-
+from re import compile
+from requests import get
+from bs4 import BeautifulSoup
 
 def get_page_containers(soup):
     left_desc = soup.find(class_='left-desc-cpu').get_text()
@@ -14,12 +11,12 @@ def get_page_containers(soup):
 
 def get_part_img(name, parser): #Takes the first image from google images
     params = {'q':name}
-    page = requests.get(constants.google_images, params)
+    page = get(constants.google_images, params)
     soup = BeautifulSoup(page.content, parser)
     img_tables = soup.find_all('table')[4]
     return img_tables.find('a').find('img')['src']
 
 def strip_text(container, regex):
-    STRIP_REGEX = re.compile(regex)
+    STRIP_REGEX = compile(regex)
     text = STRIP_REGEX.search(container)
     return text

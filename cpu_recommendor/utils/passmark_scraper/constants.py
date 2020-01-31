@@ -14,6 +14,11 @@ low_end_cpus='https://www.cpubenchmark.net/low_end_cpus.html'
 common_cpus='https://www.cpubenchmark.net/common_cpus.html'
 passmark_filename='cpu_data.json'
 google_images='https://www.google.com/search?safe=off&hl=en&tbm=isch'
+
+part_urls = {
+    'cpu': [high_end_cpus, common_cpus],
+    
+}
 regex_strings={ #contains reusable regex patterns
     'blah': 'blah',
     'tdp': '(Typical TDP:\s*)(\d+)',

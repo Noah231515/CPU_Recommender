@@ -1,6 +1,5 @@
-import requests
+from requests import get
 import logging
-import json
 from bs4 import BeautifulSoup
 from configobj import ConfigObj
 from multiprocessing import Pool, Manager, cpu_count
@@ -13,7 +12,7 @@ logging.basicConfig(filename=join(constants.passmark_log_directory, 'scraper', '
 
 def get_cpu_info(url, data_dict, parser):
     full_url = constants.passmark_base_url + url
-    page = requests.get( full_url )
+    page = get(full_url)
     soup = BeautifulSoup(page.content, parser)
     try:
         name = soup.find(class_='cpuname').get_text().split('@')[0].strip()
@@ -62,36 +61,9 @@ def get_cpu_info(url, data_dict, parser):
                 'price': price,
                 'image_url': image_url
                 }
+                
             return data_dict
             
     except AttributeError:
         logging.debug(f'The CPU: {name} has missing data and will be skipped!')
             
-def scrape_page(url, parser='html.parser'):
-    manager = Manager() #Manager manages shared memory objects
-    pool = Pool(cpu_count())
-    data_dict = manager.dict() #Our dictionary can now be shared between processes
-
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, parser)
-    
-    list_container = soup.find(class_='chartlist')
-    cpus = list_container.find_all('li')
-    cpu_info = [cpu.find(class_='name') for cpu in cpus]
-    cpu_urls = [cpu.get('href') for cpu in cpu_info]
-
-    for url in cpu_urls: #Each task is added to the pool to be completed in parallel
-        pool.apply_async(get_cpu_info, args=(url, data_dict, parser))
-
-    pool.close()
-    cnt = 0
-    while pool._cache and cnt <= constants.timeout_threshold: #We wait until all the processes are finished
-        sleep(constants.time_increment)
-        cnt += constants.time_increment
-    
-    if cnt >= constants.timeout_threshold:
-        logging.warning('Scraper timed out!!')
-    logging.info('Scraping Complete!')
-    logging.info(f'Traversing {len(cpu_urls)} pages and capturing {len(data_dict)} entries took {cnt} seconds!')
-
-    return data_dict
