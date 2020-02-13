@@ -8,6 +8,6 @@ class WebscraperTestCases(TestCase):
 
     def test_1(self):
         print("made it to test 1")
-        scraper = PassmarkScraper('cpu')
-        cpu_data = scraper.get_data()
-        print(f'CPU data: {cpu_data}')
+        scraper = PassmarkScraper('gpu')
+        scraped_data = scraper.get_data()
+        print(f'Scraped Data:{scraped_data}')

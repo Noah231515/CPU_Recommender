@@ -1,11 +1,12 @@
+import requests
 import logging
 from bs4 import BeautifulSoup
-from requests import get 
 from configobj import ConfigObj
 from multiprocessing import Pool, Manager, cpu_count
 from time import sleep
 from os.path import join 
 from .cpu_scraper import get_cpu_info
+from .gpu_scraper import get_gpu_info
 from . import constants
 
 logger = logging.getLogger(__name__)
@@ -19,9 +20,9 @@ class PassmarkScraper():
     def scrape_page(self, url, parser='html.parser'):
         manager = Manager() #Manager manages shared memory objects
         pool = Pool(cpu_count())
-        data_dict = manager.dict() #Our dictionary can now be shared between processes
+        data_dict = manager.dict() #Our dictionary can now be shared between threads
 
-        page = get(url)
+        page = requests.get(url)
         soup = BeautifulSoup(page.content, parser)
         
         list_container = soup.find(class_='chartlist')
@@ -46,7 +47,6 @@ class PassmarkScraper():
         return data_dict
 
     def get_data(self):
-        data_list = []
         final_dict = {}
         
         for url in self.urls:

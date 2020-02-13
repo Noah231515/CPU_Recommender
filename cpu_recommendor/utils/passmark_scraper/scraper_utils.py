@@ -3,6 +3,10 @@ from re import compile
 from requests import get
 from bs4 import BeautifulSoup
 
+def get_part_name(soup):
+    name = soup.find(class_='cpuname').get_text().split('@')[0].strip()
+    return name
+
 def get_page_containers(soup):
     left_desc = soup.find(class_='left-desc-cpu').get_text()
     right_desc = soup.find(class_='right-desc').get_text()
@@ -16,7 +20,11 @@ def get_part_img(name, parser): #Takes the first image from google images
     img_tables = soup.find_all('table')[4]
     return img_tables.find('a').find('img')['src']
 
-def strip_text(container, regex):
+def strip_text(container, regex=None, key=None, replacement=None): #Can define a regex or use a reusable one
+    if key and replacement:
+        regex=constants.regex_strings[key].replace('{REPLACE_ME}', replacement)
+        
+        
     STRIP_REGEX = compile(regex)
     text = STRIP_REGEX.search(container)
     return text

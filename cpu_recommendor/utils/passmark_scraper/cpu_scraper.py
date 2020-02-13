@@ -1,4 +1,4 @@
-from requests import get
+import requests
 import logging
 from bs4 import BeautifulSoup
 from configobj import ConfigObj
@@ -12,10 +12,10 @@ logging.basicConfig(filename=join(constants.passmark_log_directory, 'scraper', '
 
 def get_cpu_info(url, data_dict, parser):
     full_url = constants.passmark_base_url + url
-    page = get(full_url)
+    page = requests.get(full_url)
     soup = BeautifulSoup(page.content, parser)
     try:
-        name = soup.find(class_='cpuname').get_text().split('@')[0].strip()
+        name = scraper_utils.get_part_name(soup)
         name_split = name.split()
         brand = name_split[0]
         model = ' '.join(name_split[1:])
@@ -61,9 +61,11 @@ def get_cpu_info(url, data_dict, parser):
                 'price': price,
                 'image_url': image_url
                 }
-                
+
             return data_dict
             
     except AttributeError:
         logging.debug(f'The CPU: {name} has missing data and will be skipped!')
+        logging.debug(traceback.print_exc())
+        traceback.print_exc()
             
