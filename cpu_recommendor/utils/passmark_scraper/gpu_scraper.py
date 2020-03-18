@@ -19,7 +19,6 @@ def get_gpu_info(url, data_dict, parser):
         try:
             name = scraper_utils.get_part_name(soup)
             left_desc, right_desc, desc_foot = scraper_utils.get_page_containers(soup)
-            #print(f'Left desc: {left_desc}')
             gpu_class = scraper_utils.strip_text(left_desc, key='class', replacement='Videocard Category')
             if gpu_class and gpu_class != 'Desktop':
                 return
@@ -35,23 +34,18 @@ def get_gpu_info(url, data_dict, parser):
                 data_dict[name] = {
                     'tdp': tdp,
                     'price': price,
-                    'score': score,
+                    'benchmark_score': score,
                     'clock_speed': clock,
                     'memory_size': memory_size,
                     'memory_clock': memory_clock,
                     'directx': directx
                 }
-                
-                print(f' Data: {data_dict}')
-            
-                
-
 
         except AttributeError:
             logging.debug(f'The CPU: {name} has missing data and will be skipped!')
-            logging.debug(traceback.print_exc())
-            #traceback.print_exc()
+            #logging.debug(traceback.print_exc())
+            
     else:
-        logging.ERROR(f'The request to {full_url} is invalid!!. Response code: {page.status_code}')
+        logging.ERROR(f'The request to {full_url} is invalid!! Response code: {page.status_code}')
     
     
