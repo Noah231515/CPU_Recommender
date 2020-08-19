@@ -61,6 +61,7 @@ class CoreConfig(AppConfig):
         from utils.passmark_scraper.scraper import PassmarkScraper
         from .models import GPU, CPU
 
+        #TODO: Parse args to catch run context and update only on runserver
         number_of_cpus = len(CPU.objects.all())
         number_of_gpus = len(GPU.objects.all())
 
