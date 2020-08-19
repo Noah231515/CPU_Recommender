@@ -54,47 +54,43 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-
-        # if 'runserver' not in settings.RUN_ARGS: #doesn't run on purpose
-        #from cpu_recommendor.utils.passmark_scraper.scraper import PassmarkScraper
-        #import cpu_recommendor.utils.passmark_scraper.scraper as pm
         from utils.passmark_scraper.scraper import PassmarkScraper
         from .models import GPU, CPU
 
-        #TODO: Parse args to catch run context and update only on runserver
-        number_of_cpus = len(CPU.objects.all())
-        number_of_gpus = len(GPU.objects.all())
+        print(settings.RUN_ARGS)
+        if 'runserver' in settings.RUN_ARGS:
+            number_of_cpus = len(CPU.objects.all())
+            number_of_gpus = len(GPU.objects.all())
+            if not number_of_cpus:
+                logger.info('No gpus in the database. Populating beginning...')
+                scraper = PassmarkScraper("cpu")
+                scraped_data = scraper.get_data()
+                
+                for name, data in scraped_data.items():
+                    data['name'] = name
+                    cpu = CPU(**data)
+                    r_scores = compute_R_score(cpu,task='a')
+                
+                    cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
+                    cpu.productivity_score = r_scores['p']
+                    cpu.gaming_score = r_scores['g']
+                    cpu.blend_score = r_scores['b']
+                    cpu.save()
 
-        if not number_of_cpus:
-            logger.info('No gpus in the database. Populating beginning...')
-            scraper = PassmarkScraper("cpu")
-            scraped_data = scraper.get_data()
-            
-            for name, data in scraped_data.items():
-                data['name'] = name
-                cpu = CPU(**data)
-                r_scores = compute_R_score(cpu,task='a')
-            
-                cpu.value_score = float(cpu.multithreaded_score)/float(cpu.price) 
-                cpu.productivity_score = r_scores['p']
-                cpu.gaming_score = r_scores['g']
-                cpu.blend_score = r_scores['b']
-                cpu.save()
+            if not number_of_gpus:
+                logger.info('No gpus in the database. Populating beginning...')
+                scraper = PassmarkScraper("gpu")
+                scraped_data = scraper.get_data()
 
-        if not number_of_gpus:
-            logger.info('No gpus in the database. Populating beginning...')
-            scraper = PassmarkScraper("gpu")
-            scraped_data = scraper.get_data()
+                #Stubbed functionality for calculating scores
+                for name, data in scraped_data.items():
+                    data['name'] = name
+                    data['gaming_score'] = 0
+                    data['productivity_score'] = 0
+                    data['blend_score'] = 0
+                    data['value_score'] = 0
 
-            #Stubbed functionality for calculating scores
-            for name, data in scraped_data.items():
-                data['name'] = name
-                data['gaming_score'] = 0
-                data['productivity_score'] = 0
-                data['blend_score'] = 0
-                data['value_score'] = 0
-
-                gpu = GPU(**data)
-                gpu.save()
+                    gpu = GPU(**data)
+                    gpu.save()
 
                 

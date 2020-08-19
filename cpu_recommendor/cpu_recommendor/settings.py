@@ -32,8 +32,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 RUN_ARGS = argv
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
