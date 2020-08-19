@@ -54,10 +54,6 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-
-        # if 'runserver' not in settings.RUN_ARGS: #doesn't run on purpose
-        #from cpu_recommendor.utils.passmark_scraper.scraper import PassmarkScraper
-        #import cpu_recommendor.utils.passmark_scraper.scraper as pm
         from utils.passmark_scraper.scraper import PassmarkScraper
         from .models import GPU, CPU
 
