@@ -23,3 +23,19 @@ class CPU(models.Model):
     productivity_score = models.FloatField(default=0)
     blend_score = models.FloatField(default=0)
     value_score = models.FloatField(default=0)
+
+class GPU(models.Model):
+    name = models.CharField(max_length=100)
+    tdp = models.IntegerField(default=0)
+    price = models.FloatField(default=0)
+    benchmark_score = models.IntegerField(verbose_name='b_score')
+    clock_speed = models.FloatField(default=0)
+    memory_size = models.FloatField(default=0)
+    memory_clock = models.FloatField(default=0)
+    directx = models.CharField(max_length=100)
+
+    gaming_score = models.FloatField(default=0)
+    productivity_score = models.FloatField(default=0)
+    blend_score = models.FloatField(default=0)
+    value_score = models.FloatField(default=0)
+
