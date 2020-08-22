@@ -1,13 +1,21 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from .models import CPU
+from .models import CPU, GPU
 from .forms import CPUForm
 from django.views import generic
 from pandas import DataFrame
+from rest_framework import viewsets
+from rest_framework import permissions
+from core.serializers import GPUSerializer
+
 
 # Create your views here.
-
-
+class GPUViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = GPU.objects.all()
+    serializer_class = GPUSerializer
 
 class IndexView(generic.ListView):
     template_name = 'core/index.html'
@@ -31,7 +39,6 @@ def get_cpu_param(cpu, param, modifiers=None):
         return eval(f'cpu.{param}{symbol}{value}')
     else:
         return eval(f'cpu.{param}')
-
 
 def find_best_three_adjusted_part(cpu_list, task, adjustor, modifiers=None): #Allows to adjust scores, f.ex value and TDP
     adjusted_list = [(cpu, get_cpu_param(cpu, task) * get_cpu_param(cpu, adjustor, modifiers) ) for cpu in cpu_list ]
