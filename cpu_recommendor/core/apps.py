@@ -46,9 +46,9 @@ def compute_R_score(cpu, task='p'):
     else:
         cpu_df = build_dataframe(cpu,task)
         r_score = average(cpu_df['features'], weights=cpu_df['wt'])
+        logger.debug(f"CPU: {cpu.name}, R_score: {r_score}, Task: {task}")
 
         return r_score
-        #print(f"CPU: {cpu.name}, R_score: {r_score}, Task: {task} ")
 
 class CoreConfig(AppConfig):
     name = 'core'
@@ -59,7 +59,9 @@ class CoreConfig(AppConfig):
 
         print(settings.RUN_ARGS)
         if 'runserver' in settings.RUN_ARGS:
-            number_of_cpus = len(CPU.objects.all())
+            #TODO: Debug cpu scraper. Not able to add any cpus to the db
+            #number_of_cpus = len(CPU.objects.all())
+            number_of_cpus = 1
             number_of_gpus = len(GPU.objects.all())
             if not number_of_cpus:
                 logger.info('No gpus in the database. Populating beginning...')
