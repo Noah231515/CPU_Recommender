@@ -66,6 +66,7 @@ def get_cpu_info(url, data_dict, parser):
             
     except AttributeError:
         logging.debug(f'The CPU: {name} has missing data and will be skipped!')
+        logging.debug(f'Data: {data_dict[name]}')
         logging.debug(traceback.print_exc())
         traceback.print_exc()
             

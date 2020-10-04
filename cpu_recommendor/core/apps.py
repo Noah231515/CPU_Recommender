@@ -61,7 +61,7 @@ class CoreConfig(AppConfig):
         if 'runserver' in settings.RUN_ARGS:
             #TODO: Debug cpu scraper. Not able to add any cpus to the db
             #number_of_cpus = len(CPU.objects.all())
-            number_of_cpus = 1
+            number_of_cpus = len(CPU.objects.all())
             number_of_gpus = len(GPU.objects.all())
             if not number_of_cpus:
                 logger.info('No gpus in the database. Populating beginning...')
